@@ -50,7 +50,7 @@ Save the script in an accessible folder (e.g., `/sdcard`):
 
 ```bash
 git clone https://github.com/Nx5M/Auto-Reconnect.git
-cd Auto-Rejoin
+cd Auto-Reconnect
 ```
 
 ## ⚙️ Configuration (`.env`)
