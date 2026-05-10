@@ -278,6 +278,81 @@ def setup() -> None:
             print("Setup cancelled.")
             return
 
+    # --- PENAMBAHAN OPSI ENVIRONMENT ---
+    print("\nPilih Environment/Device yang kamu gunakan:")
+    print("1. Cloud Phone (Redfinger, LDCloud, dll) -> Mencegah Terminal Freeze")
+    print("2. Device Android Biasa/Native -> Setup Full via Terminal")
+    
+    device_choice = get_validated_input(
+        "Pilihanmu (1/2): ",
+        lambda x: x in ["1", "2"],
+        error_msg="Input tidak valid! Harap ketik angka 1 atau 2."
+    )
+    print("\n----------------\n")
+
+    if device_choice == "1":
+        # === MODE CLOUD PHONE (Bypass sisa input terminal) ===
+        print("[ MODE CLOUD PHONE TERPILIH ]")
+        print("Sistem hanya akan mengambil Cookie Roblox secara otomatis.")
+        print("Pengaturan Private Server akan dilakukan secara manual nanti.\n")
+        
+        if get_yes_no_input("Auto-extract cookie from Roblox app?", True):
+            roblox_cookie = auto_extract_cookie()
+        else:
+            roblox_cookie = None
+
+        if not roblox_cookie:
+            roblox_cookie = get_validated_input(
+                "Roblox Cookie (.ROBLOSECURITY): ",
+                lambda x: len(x) > 10,
+                error_msg="Cookie appears to be too short. Please enter a valid cookie."
+            )
+            
+        fetched_user_id = None
+        if roblox_cookie:
+            print("\nVerifying cookie and fetching User ID...")
+            fetched_user_id, fetched_username = get_roblox_user_info(roblox_cookie)
+            if fetched_user_id:
+                print(f"Success! Logged in as: {fetched_username} (ID: {fetched_user_id})")
+            else:
+                print("Could not fetch User ID automatically.")
+                
+        user_id = str(fetched_user_id) if fetched_user_id else ""
+
+        # Menyiapkan isi .env default untuk cloud phone
+        env_content = f"""PS_LINK=ISI_LINK_PRIVATE_SERVER_DISINI_MENGGUNAKAN_FILE_MANAGER
+USER_ID={user_id}
+CHECK_INTERVAL={DEFAULT_CHECK_INTERVAL}
+RESTART_DELAY={DEFAULT_RESTART_DELAY}
+ROBLOX_COOKIE={roblox_cookie if roblox_cookie else ''}
+DISCORD_WEBHOOK_URL=
+DISCORD_WEBHOOK_NAME={DEFAULT_DISCORD_BOT_NAME}
+DISCORD_MENTION_USER=
+DISCORD_ENABLED=false
+DISCORD_NOTIFY_ON_START=true
+DISCORD_NOTIFY_ON_REJOIN=true
+DISCORD_NOTIFY_ON_ERROR=true
+"""
+        with open(env_path, "w") as f:
+            f.write(env_content.strip())
+
+        print("\n" + "="*55)
+        print(" SETUP TAHAP 1 SELESAI ".center(55, "="))
+        print("="*55)
+        print(f"Cookie dan User ID berhasil disave ke file {env_path}.")
+        print("\nINSTRUKSI SELANJUTNYA (SANGAT PENTING):")
+        print("1. Buka File Manager lu (MT Manager / ZArchiver dll).")
+        print("2. Buka folder Termux ini dan cari file bernama '.env'")
+        print("   (Pastikan fitur 'Show Hidden Files' di file manager aktif).")
+        print("3. Edit file tersebut dan ganti tulisan:")
+        print("   'ISI_LINK_PRIVATE_SERVER_DISINI_MENGGUNAKAN_FILE_MANAGER'")
+        print("   dengan Link Private Server lu.")
+        print("4. Save file .env tersebut.")
+        print("5. Terakhir, kembali ke Termux dan jalankan command: python main.py")
+        print("="*55 + "\n")
+        return
+
+    # === MODE ANDROID NATIVE (Setup Full Seperti Original) ===
     print("Enter the following information:\n")
 
     print("Roblox Cookie:")
